@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+<style>
+   
+   #super-title {
+        
+        font-weight: 100;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        padding: 27px;
+        text-align: center;
+        
+
+    /* This is the syntax for creating borders in css, it must the pixels then shown along with the density and then the colour   */
+    
+  
+   
+
+
+    }
+
+    @keyframes frenzy {
+        0% {
+            background-color: rgb(133, 89, 198);
+        }
+        25% {
+            background-color: rgb(36, 182, 198);
+        }
+
+        50% {
+            background-color: rgb(133, 89, 198);
+        }
+
+        75% {
+            background-color: rgb(36, 182, 198);
+        }
+
+        100% {
+            background-color:  rgb(133, 89, 198);
+        }
+        
+
+    }
+
+    
+    
+    body {
+        font-family: arial, sans-serif;
+        animation: frenzy 7s infinite;
+
+    }
+
+
+    .game-container {
+        margin: 10px auto;
+        max-width: 70px;
+
+    }
+    
+    h1 {
+    color: #040404;
+}    
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+
+.card {
+    width: 100px;
+    height: 100px;
+    background-color: #2f1313;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #c5adad;
+    font-size: 2em;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: transform 0.3s;
+    margin: 50px auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card.flip {
+    background-color: #f7cfcf;
+    color: #444;
+    transform: rotateY(180deg);
+    cursor: default;
+}
+
+.card.matched {
+    background-color: #8bc34a;
+    color: #fff;
+    pointer-events: none;
+}
+
+
+.center-container {
+    display: flex;             
+    justify-content: center;   /* If you wanted it to work you needed a parent div, imagine it like this the button element only concerns itself with information inside the button but has authority to control itself across whole section of its div so you a parent div to encapsulate the rest of the spaced secction  */
+    align-items: center;       
+    height: 30vh;            
+}
+
+
+.restart-btn {
+    display: block;
+    
+    margin-top: 20px auto;
+    padding: 20px 40px;
+    font-size: 20px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.8s;
+    text-align: center;
+    
+    
+}
+
+
+.restart-btn:hover {
+    background-color: #054386;
+}
+
+    </style>
+</head>
+
+
+
+  
+
+
+
+<!--When looking at style sheet we can see that we change text orientation
+using the text-align option -->
+</head>
+<body>
+    
+<div id = "super-title">  <!--The id wont work unless you have a dash inbetween each space, you should know that from Python-->
+    <h1><u>Welcome to my memeory card game</u></h1> 
+    
+</div>
+
+<div class="grid">
+    <!-- Cards will be dynamically generated here -->
+</div>
+
+
+<div class="center-container">
+    <button class="restart-btn">Restart</button>
+</div>
+
+
+
+
+<p>&nbsp;</p>
+<h2></h2>
+<script>
+
+const grid = document.querySelector('.grid');
+const restartBtn = document.querySelector('.restart-btn');
+
+// Card data (pairs of items)
+const cards = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝'];
+
+// Duplicate and shuffle cards
+let shuffledCards = [...cards, ...cards].sort(() => Math.random() - 0.5);
+
+// State tracking
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+
+// Generate the cards
+function createBoard() {
+    grid.innerHTML = ''; // Clear the grid
+    shuffledCards.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.symbol = symbol;
+        card.dataset.index = index; // Unique index for each card
+        card.innerHTML = '<div class="content"></div>'; // Placeholder
+        card.addEventListener('click', flipCard);
+        grid.appendChild(card);
+    });
+}
+
+// Flip a card
+function flipCard() {
+    if (lockBoard) return; // Prevent clicking during animation
+    if (this === firstCard) return; // Ignore double-clicking same card
+
+    this.classList.add('flip');
+    this.textContent = this.dataset.symbol;
+
+    if (!firstCard) {
+        // First card selected
+        firstCard = this;
+    } else {
+        // Second card selected
+        secondCard = this;
+        checkMatch();
+    }
+}
+
+// Check if two selected cards match
+function checkMatch() {
+    lockBoard = true;
+    const isMatch = firstCard.dataset.symbol === secondCard.dataset.symbol;
+
+    if (isMatch) {
+        // Cards match
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        resetBoard();
+    } else {
+        // No match, flip cards back
+        setTimeout(() => {
+            firstCard.classList.remove('flip');
+            secondCard.classList.remove('flip');
+            firstCard.textContent = '';
+            secondCard.textContent = '';
+            resetBoard();
+        }, 1000);
+    }
+}
+
+// Reset board state
+function resetBoard() {
+    [firstCard, secondCard] = [null, null];
+    lockBoard = false;
+}
+
+// Restart game
+restartBtn.addEventListener('click', () => {
+    shuffledCards = [...cards, ...cards].sort(() => Math.random() - 0.5);  // the sort method to our left is an iteration of our randomised array algorithm.
+    createBoard();
+});
+
+
+
+
+
+// Initialize game
+createBoard();
+
+
+
+    </script>
+
+
+
+
+
+
+</body>
+</html>
